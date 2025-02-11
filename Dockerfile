@@ -1,4 +1,4 @@
-FROM kasmweb/ubuntu-focal-desktop:1.13.0
+FROM kasmweb/core-ubuntu-focal:develop
 
 # Install dependencies
 RUN apt-get update && apt-get install -y \
