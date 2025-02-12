@@ -5,17 +5,40 @@ USER root
 
 # Install dependencies
 RUN mkdir -p /var/lib/apt/lists/partial && chmod 755 /var/lib/apt/lists/partial && \
-    apt-get update --allow-releaseinfo-change && apt-get install -y \
-    git curl libxss1 libappindicator1 libindicator7 wget unzip npm \
-    && rm -rf /var/lib/apt/lists/*
-
-# Clone and install HakuNeko
-RUN git clone https://github.com/manga-download/hakuneko.git /opt/hakuneko && \
-    cd /opt/hakuneko && \
-    npm install && npm run build
-
-# Set permissions
-RUN chmod -R 755 /opt/hakuneko
+ apt-get update && \
+ apt-get install -y \
+        dbus \
+        jq \
+        python \
+        wget \
+        zenity \
+        git \
+        curl \
+        libxss1 \
+        libappindicator1 \
+        libindicator7 \
+        wget \
+        unzip \
+        npm \
+	libxss1 && \
+ echo "**** install hakuneko ****" && \
+ if [ -z ${HAKUNEKO_RELEASE+x} ]; then \
+        HAKUNEKO_RELEASE=$(curl -sX GET "https://api.github.com/repos/manga-download/hakuneko/releases/latest" \
+        | jq -r .tag_name); \
+ fi && \
+ HAKUNEKO_VERSION="$(echo ${HAKUNEKO_RELEASE} | cut -c2-)" && \
+ HAKUNEKO_URL="https://github.com/manga-download/hakuneko/releases/download/v${HAKUNEKO_VERSION}/hakuneko-desktop_${HAKUNEKO_VERSION}_linux_amd64.deb" && \
+ echo "${HAKUNEKO_VERSION} ;; ${HAKUNEKO_URL}" && \
+ curl -o /tmp/hakuneko.deb \
+      -L "${HAKUNEKO_URL}" && \
+ dpkg -i /tmp/hakuneko.deb && \
+ dbus-uuidgen > /etc/machine-id && \
+ echo "**** cleanup ****" && \
+ apt-get clean && \
+ rm -rf \
+        /tmp/* \
+        /var/lib/apt/lists/* \
+        /var/tmp/*
 
 # Configure startup script
 COPY start-hakuneko.sh /usr/local/bin/start-hakuneko.sh
