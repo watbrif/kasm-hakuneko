@@ -1,7 +1,11 @@
 FROM kasmweb/core-ubuntu-focal:develop
 
+# Ensure running as root
+USER root
+
 # Install dependencies
-RUN apt-get update && apt-get install -y \
+RUN mkdir -p /var/lib/apt/lists/partial && chmod 755 /var/lib/apt/lists/partial && \
+    apt-get update --allow-releaseinfo-change && apt-get install -y \
     git curl libxss1 libappindicator1 libindicator7 wget unzip \
     && rm -rf /var/lib/apt/lists/*
 
