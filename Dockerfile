@@ -6,13 +6,12 @@ USER root
 # Install dependencies
 RUN mkdir -p /var/lib/apt/lists/partial && chmod 755 /var/lib/apt/lists/partial && \
     apt-get update --allow-releaseinfo-change && apt-get install -y \
-    git curl libxss1 libappindicator1 libindicator7 wget unzip \
+    git curl libxss1 libappindicator1 libindicator7 wget unzip npm \
     && rm -rf /var/lib/apt/lists/*
 
 # Clone and install HakuNeko
 RUN git clone https://github.com/manga-download/hakuneko.git /opt/hakuneko && \
     cd /opt/hakuneko && \
-    ./scripts/setup.sh && \
     npm install && npm run build
 
 # Set permissions
@@ -27,3 +26,4 @@ EXPOSE 6901
 
 # Set default command to start kasmVNC and HakuNeko
 CMD ["/usr/local/bin/start-hakuneko.sh"]
+
