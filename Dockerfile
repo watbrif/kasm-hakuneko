@@ -3,8 +3,18 @@ FROM kasmweb/core-ubuntu-focal:develop
 # Ensure running as root
 USER root
 
-# Install dependencies
-RUN mkdir -p /var/lib/apt/lists/partial && chmod 755 /var/lib/apt/lists/partial && \
+# set version label
+ARG BUILD_DATE
+ARG VERSION
+ARG HAKUNEKO_RELEASE
+LABEL build_version="hakuneko with kasmvnc version:- ${VERSION} Build-date:- ${BUILD_DATE}"
+LABEL maintainer="shlagevuk"
+ENV APPNAME="hakuneko-desktop"
+ENV HAKUNEKO_VERSION="6.1.7"
+
+
+RUN \
+ echo "**** install runtime packages ****" && \
  apt-get update && \
  apt-get install -y \
         dbus \
@@ -12,14 +22,6 @@ RUN mkdir -p /var/lib/apt/lists/partial && chmod 755 /var/lib/apt/lists/partial 
         python \
         wget \
         zenity \
-        git \
-        curl \
-        libxss1 \
-        libappindicator1 \
-        libindicator7 \
-        wget \
-        unzip \
-        npm \
 	libxss1 && \
  echo "**** install hakuneko ****" && \
  if [ -z ${HAKUNEKO_RELEASE+x} ]; then \
@@ -40,9 +42,8 @@ RUN mkdir -p /var/lib/apt/lists/partial && chmod 755 /var/lib/apt/lists/partial 
         /var/lib/apt/lists/* \
         /var/tmp/*
 
-# Configure startup script
-COPY start-hakuneko.sh /usr/local/bin/start-hakuneko.sh
-RUN chmod +x /usr/local/bin/start-hakuneko.sh
+
+COPY root/ /
 
 # Expose ports for kasmVNC
 EXPOSE 6901
